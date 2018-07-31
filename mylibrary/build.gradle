@@ -1,0 +1,105 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply from: 'maven-push.gradle'
+
+group='com.github.varunsingh39'
+
+android {
+    compileSdkVersion 27
+
+    publishNonDefault true
+
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+   /* task fullJar(type: jar){
+        manifest{
+            attributes 'Implementation-Title':'Jar File',
+                    'Implementation-Version':'1.0',
+                    'Main-Class':'in.mahagram.mylibrary.GetData'
+        }
+        baseName='testLib-all'
+        from {configurations.compile.collect{it.isDirectory()?it:zipTree(it)}}
+        with jar
+    }
+*/
+
+  /*  task fatJar(type: Jar, dependsOn: 'compileJava') {
+        *//*from {
+            sourceSets.main.output.classesDir
+        }*//*
+        manifest {
+            attributes 'Implementation-Title': 'Gradle Jar File Example',
+                    'Implementation-Version': '1.0',
+                    'Main-Class': 'in.mahagram.mylibrary.GetData'
+        }
+
+        // Add all dependencies except for android.jar to the fat jar
+        from {
+            configurations.compile.findAll {
+                it.getName() != 'android.jar'
+            }.collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
+        archiveName = 'fatJar.jar'
+    }
+*/
+    task createJar(type: Copy){
+        from('build/intermediates/packaged-classes/debug')
+        into('libs/')
+        include('classes.jar')
+        rename('classes.jar','testlib.jar')
+    }
+    task deleteJar(type: Delete){
+        delete 'libs/testlib.jar'
+    }
+
+    createJar.dependsOn(deleteJar,build)
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+/*
+    jarjar{
+        jarjarFile 'libs/jarjar-1.4.jar'
+    }
+
+*/
+
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    /*implementation jarjar.repackage {
+        from 'com.google.guava:guava:18.0'
+
+        classDelete "com.google.common.base.**"
+
+        classRename "com.google.**" "org.private.google.@1"
+    }*/
+
+}
